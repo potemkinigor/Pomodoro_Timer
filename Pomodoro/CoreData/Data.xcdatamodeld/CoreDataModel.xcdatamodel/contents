@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="17709" systemVersion="20C69" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="CompletedPomodoros" representedClassName="CompletedPomodoros" syncable="YES" codeGenerationType="class">
+        <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="totalAmount" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="ofTask" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Task" inverseName="completedPomodoros" inverseEntity="Task"/>
+    </entity>
+    <entity name="Propertie" representedClassName="Propertie" syncable="YES" codeGenerationType="class">
+        <attribute name="duration" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="postfix" optional="YES" attributeType="String"/>
+    </entity>
+    <entity name="Task" representedClassName="Task" syncable="YES" codeGenerationType="class">
+        <attribute name="countPomidorsActual" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="currentlyWorking" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="dateCreated" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="dateFinished" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="isFinished" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <relationship name="completedPomodoros" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CompletedPomodoros" inverseName="ofTask" inverseEntity="CompletedPomodoros"/>
+    </entity>
+    <elements>
+        <element name="Propertie" positionX="-243.5748901367188" positionY="210.4519653320312" width="128" height="74"/>
+        <element name="Task" positionX="-663.0214233398438" positionY="-28.34587097167969" width="232.2925415039062" height="148"/>
+        <element name="CompletedPomodoros" positionX="-248.7232666015625" positionY="31.88729858398438" width="128" height="88"/>
+    </elements>
+</model>
