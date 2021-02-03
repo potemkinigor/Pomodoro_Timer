@@ -11,11 +11,15 @@ struct ContentView: View {
     
     @EnvironmentObject var modelData: ModelData
     @EnvironmentObject var timerManager: TimerManager
+    @EnvironmentObject var barChartData: BarChartData
     
     @State private var tabSelection = "ToDoView"
     
-    var body: some View {
-        
+    init() {
+        UITabBar.appearance().barTintColor = backgroundColor
+    }
+    
+    var body: some View {        
         VStack {            
             TabView(selection: $tabSelection) {
                 ToDoView(tabSelection: $tabSelection)
@@ -34,7 +38,7 @@ struct ContentView: View {
                         Image(systemName: "list.star")
                         Text("Завершенные")
                     }.tag("FullListOfTasks")
-                Text("Statistics")
+                Statistics()
                     .tabItem {
                         Image(systemName: "function")
                         Text("Статистика")
@@ -47,6 +51,19 @@ struct ContentView: View {
                     
             }
             .ignoresSafeArea(edges: .top)
+        }.onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
+            timerManager.dateLeavedApp = Date()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+            timerManager.dateEnteredApp = Date()
+            
+            let differenceInSeconds = Int(timerManager.dateEnteredApp.timeIntervalSince(timerManager.dateLeavedApp))
+            
+            if differenceInSeconds > timerManager.totalSecondsLeft {
+                timerManager.totalSecondsLeft = 1
+            } else {
+                timerManager.totalSecondsLeft -= differenceInSeconds
+            }
         }
     }
 }
@@ -55,5 +72,6 @@ struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
             .environmentObject(ModelData())
+            .environmentObject(TimerManager())
     }
 }

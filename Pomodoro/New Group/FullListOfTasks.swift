@@ -40,15 +40,25 @@ struct FullListOfTasks: View {
                             }
                             Spacer()
                             Text(String(task.countPomidorsActual))
-                        }
+                        }.frame(height: 40)
                     }
                 }
-                
+                .padding(.horizontal, 20)
+                .background(Color(taskColor))
+                .clipped()
+                .cornerRadius(12)
+                .listRowBackground(Color(backgroundColor))
             }
             .ignoresSafeArea(edges: .top)
             .navigationTitle("Завершенные задачи")
+            .onAppear {
+                UITableView.appearance().backgroundColor = backgroundColor
+                UITableView.appearance().separatorStyle = .singleLine
+                UITableViewCell.appearance().backgroundColor = backgroundColor
+            }
         }
     }
+    
 }
 
 func changeDateFormat (date: Date?) -> String {

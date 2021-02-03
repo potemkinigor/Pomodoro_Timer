@@ -29,7 +29,6 @@ struct AddNewTaskView: View {
                 TextField("", text: $taskName)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .shadow(radius: 10)
-                    
             }
             
             .padding()
@@ -62,7 +61,7 @@ struct AddNewTaskView: View {
                     })
                     .frame(width: 70, height: 75, alignment: .center)
                     .background(Color.red)
-                    .foregroundColor(.white)
+                    .foregroundColor(Color(taskColor))
                     .font(.title2)
                     .cornerRadius(20)
                     .shadow(radius: 10)

@@ -44,14 +44,16 @@ public func getNumberOfAllCompletedTodayTasks () -> Int {
     
     let viewContext = PersistenceContainer.shared.container.viewContext
     
-    let calendar = Calendar(identifier: .gregorian)
-    let currentDate = Date()
+    let calendar = Calendar.current
+    let startDate = calendar.startOfDay(for: Date())
+    let endDate = calendar.date(bySettingHour :23, minute: 59, second: 59, of: Date())
     
-    let startOfTheDay = calendar.startOfDay(for: currentDate)
-    let endOfTheDay =  calendar.date(byAdding: .day, value: 1, to: currentDate)!
+    let formatter = DateFormatter()
+    formatter.timeStyle = .none
+    formatter.dateStyle = .medium
     
     let request = CompletedPomodoros.fetchRequest() as NSFetchRequest<CompletedPomodoros>
-    let pred = NSPredicate(format: "(date >= %@) AND (date <= %@)", startOfTheDay as NSDate, endOfTheDay as NSDate)
+    let pred = NSPredicate(format: "date >= %@ && date <= %@", startDate as NSDate, endDate! as NSDate)
     
     request.predicate = pred
     
@@ -113,4 +115,3 @@ public func makeOtherTaskWorking () {
     
     saveCoreData()
 }
-
