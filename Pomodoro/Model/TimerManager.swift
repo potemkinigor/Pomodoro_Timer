@@ -31,14 +31,25 @@ class TimerManager: ObservableObject {
     
     @EnvironmentObject var modelData: ModelData
     
+    //MARK: - Timer public properties
+    
     @Published var timerMode: TimerMode = .initial
     @Published var timerTask: WorkingTask = .task
     @Published var taskName: String = "Прочее"
     @Published var timeStamp = "\(ModelData().settings[0].duration) : 00"
     @Published var numberOfActualPomodors = 0
     @Published var totalSecondsLeft = 0
+    @Published var timerColor = Color.red
+    @Published var rateTaskCompleted: CGFloat = 1
+    
+    
+    @Published var dateLeavedApp: Date = Date()
+    @Published var dateEnteredApp: Date = Date()
+    
     
     var timer = Timer()
+    
+    //MARK: - Public functions
     
     func startTimer () {
         timerMode = .running
@@ -57,9 +68,11 @@ class TimerManager: ObservableObject {
                     timerMode = .initial
                     dropTimerToTask()
                 }
+                rateTaskCompleted = 1
                 return
             }
             self.totalSecondsLeft -= 1
+            updateTimerView()
             
             timeStamp = convertToTimeStamp(totalSecondsLeft: totalSecondsLeft)
             
@@ -75,6 +88,7 @@ class TimerManager: ObservableObject {
         totalSecondsLeft = updateTimerSecondsLeft(mode: .task)
         timerTask = .task
         timeStamp = convertToTimeStamp(totalSecondsLeft: totalSecondsLeft)
+        updateTimerView()
         timer.invalidate()
     }
     
@@ -82,6 +96,7 @@ class TimerManager: ObservableObject {
         totalSecondsLeft = updateTimerSecondsLeft(mode: .shortBrake)
         timerTask = .shortBrake
         timeStamp = convertToTimeStamp(totalSecondsLeft: totalSecondsLeft)
+        updateTimerView()
         timer.invalidate()
     }
     
@@ -89,6 +104,7 @@ class TimerManager: ObservableObject {
         totalSecondsLeft = updateTimerSecondsLeft(mode: .longBreak)
         timerTask = .longBreak
         timeStamp = convertToTimeStamp(totalSecondsLeft: totalSecondsLeft)
+        updateTimerView()
         timer.invalidate()
     }
     
@@ -97,7 +113,10 @@ class TimerManager: ObservableObject {
         dropTimerToTask()
         timerMode = .initial
         timerTask = .task
+        updateTimerView()
     }
+    
+    //MARK: - Private functions
     
     func addPomodorToTask () {
         
@@ -109,10 +128,10 @@ class TimerManager: ObservableObject {
         
         let workingTask = try! viewContext.fetch(request)
         
+        
         let newEntry = CompletedPomodoros(context: viewContext)
         newEntry.date = Date()
         newEntry.totalAmount = 1
-        
         workingTask[0].completedPomodoros = NSSet.init(array: [newEntry])
         
         workingTask[0].countPomidorsActual += 1
@@ -154,6 +173,20 @@ class TimerManager: ObservableObject {
         let settingWithTotalTime = try! viewContext.fetch(requestSetting)
         
         return Int(settingWithTotalTime[0].duration) * 60
-        
     }
+    
+    func updateTimerView() {
+        switch timerTask {
+        case .task:
+            timerColor = Color.red
+            rateTaskCompleted = CGFloat(Double(totalSecondsLeft) / Double(updateTimerSecondsLeft(mode: .task)))
+        case .longBreak:
+            timerColor = Color.green
+            rateTaskCompleted = CGFloat(Double(totalSecondsLeft) / Double(updateTimerSecondsLeft(mode: .longBreak)))
+        case .shortBrake:
+            timerColor = Color.green
+            rateTaskCompleted = CGFloat(Double(totalSecondsLeft) / Double(updateTimerSecondsLeft(mode: .shortBrake)))
+        }
+    }
+    
 }

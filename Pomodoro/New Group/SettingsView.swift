@@ -12,10 +12,11 @@ struct SettingsView: View {
     
     @Environment(\.managedObjectContext) private var viewContext
     
-    @FetchRequest(sortDescriptors: [])
+    @FetchRequest(sortDescriptors: [NSSortDescriptor(key: "id", ascending: true)])
     private var properties: FetchedResults<Propertie>
     
     @EnvironmentObject var modelData: ModelData
+    @EnvironmentObject var timerManager: TimerManager
     @State private var showOther: Bool = false
     
     var body: some View {
@@ -65,8 +66,9 @@ struct SettingsView: View {
                     }
                     
                 }
-                
-                Spacer()
+                .padding(.horizontal, 0)
+                .background(Color(backgroundColor))
+                .listRowBackground(Color(backgroundColor))
                 
             }
         }

@@ -27,52 +27,72 @@ struct TimerView: View {
     
     var body: some View {
         
-        VStack(spacing: 45) {
+        ZStack {
+            Color(backgroundColor).edgesIgnoringSafeArea(.all)
             
-            Text(timerManager.taskName)
-            
-            Text(timerManager.timeStamp)
-                .fontWeight(.bold)
-                .font(.system(size: 75))
-            
-            Divider()
-           
-            HStack {
-                Button(timerManager.timerMode == .running ? "Остановить" : "Старт", action: {
-                    timerManager.timerMode == .running ? timerManager.pauseTimer() : timerManager.startTimer()
-                })
-                .frame(width: 300, height: 75, alignment: .center)
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .font(.title2)
-                .cornerRadius(25)
-                .shadow(radius: 10)
-                
-                Button("Х", action: {
-                    timerManager.missTask()
-                })
-                .frame(width: 70, height: 75, alignment: .center)
-                .background(Color.red)
-                .foregroundColor(.white)
-                .font(.title2)
-                .cornerRadius(20)
-                .shadow(radius: 10)
-            }
+            VStack(spacing: 45) {
 
-            Text("Выполнение цели: \(timerManager.numberOfActualPomodors)/\(modelData.coreDataSettings[2].duration)")
-                .font(.title2)
-            
+                Text(timerManager.taskName)
+                    .font(.title)
+                    .foregroundColor(.black)
+                
+                ZStack {
+                    
+                    RoundTimerView()
+                        .padding()
+                    
+                    Text(timerManager.timeStamp)
+                        .fontWeight(.bold)
+                        .font(.system(size: 75))
+                        .foregroundColor(.black)
+                }
+      
+                Divider()
+               
+                HStack {
+                    Button(timerManager.timerMode == .running ? "Остановить" : "Старт", action: {
+                        timerManager.timerMode == .running ? timerManager.pauseTimer() : timerManager.startTimer()
+                    })
+                    .frame(width: 300, height: 75, alignment: .center)
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .font(.title2)
+                    .cornerRadius(25)
+                    .shadow(radius: 10)
+                    
+                    Button("Х", action: {
+                        timerManager.missTask()
+                    })
+                    .frame(width: 70, height: 75, alignment: .center)
+                    .background(Color.red)
+                    .foregroundColor(.white)
+                    .font(.title2)
+                    .cornerRadius(20)
+                    .shadow(radius: 10)
+                }
+
+                Text("Выполнение цели: \(timerManager.numberOfActualPomodors)/\(numberOfTargetPomodors)")
+                    .font(.title2)
+                    .foregroundColor(.black)
+                
+            }
+            .alert(isPresented: $showNoTaskAlert) {() -> Alert in
+                Alert(title: Text("Предупреждение"), message: Text("Задача не выбрана!"), dismissButton: .cancel(Text("Ок")))
+            }
+            .padding(.bottom)
+            .onAppear() {
+                numberOfActualPomodors = getNumberOfAllCompletedTodayTasks()
+                numberOfTargetPomodors = getTargetNumberOfPomodors()
+                
+                if timerManager.timerMode == .initial {
+                    timerManager.timeStamp = timerManager.convertToTimeStamp(totalSecondsLeft: timerManager.updateTimerSecondsLeft(mode: timerManager.timerTask))
+                }
+                
+            }
         }
-        .alert(isPresented: $showNoTaskAlert) {() -> Alert in
-            Alert(title: Text("Предупреждение"), message: Text("Задача не выбрана!"), dismissButton: .cancel(Text("Ок")))
-        }
-        .padding(.bottom)
-        .onAppear() {
-            numberOfActualPomodors = getNumberOfAllCompletedTodayTasks()
-            numberOfTargetPomodors = getTargetNumberOfPomodors()
-        }
+    
     }
-   
+
 }
 
 struct TimerView_Previews: PreviewProvider {

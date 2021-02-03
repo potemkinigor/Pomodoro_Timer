@@ -13,6 +13,7 @@ struct PomodoroApp: App {
     
     @StateObject private var modelData = ModelData()
     @StateObject private var timerManager = TimerManager()
+    @StateObject private var barChartData = BarChartData()
     
     let persistanceContainer = PersistenceContainer.shared
     
@@ -23,6 +24,7 @@ struct PomodoroApp: App {
             ContentView().onAppear(perform: checkData)
                 .environmentObject(modelData)
                 .environmentObject(timerManager)
+                .environmentObject(barChartData)
                 .environment(\.managedObjectContext, persistanceContainer.container.viewContext)
         }
     }
@@ -32,6 +34,7 @@ struct PomodoroApp: App {
         checkWorkingTask()
         updateTimerStatus()
         updatePropertiesStatus()
+        barChartData.updateData(startDate: Calendar.current.date(byAdding: .day, value: -7, to: Date())!, endDate: Date())
     }
     
     func checkWorkingTask () {
@@ -62,6 +65,8 @@ struct PomodoroApp: App {
         timerManager.timeStamp = timerManager.convertToTimeStamp(totalSecondsLeft: timerManager.totalSecondsLeft)
         timerManager.numberOfActualPomodors = getNumberOfAllCompletedTodayTasks()
         timerManager.taskName = getWorkingTask()!.name!
+        timerManager.timerColor = Color.red
+        timerManager.rateTaskCompleted = 1
     }
     
     func checkCoreData () {
@@ -79,11 +84,12 @@ struct PomodoroApp: App {
         requestSettings.predicate = pred
         
         if listOfProperties.count == 0 {
-            for setting in modelData.settings {
+            for index in 0..<modelData.settings.count {
                 let newSetting = Propertie(context: viewContext)
-                newSetting.name = setting.name
-                newSetting.duration = Int32(setting.duration)
-                newSetting.postfix = setting.postfix
+                newSetting.id = Int16(modelData.settings[index].id)
+                newSetting.name = modelData.settings[index].name
+                newSetting.duration = Int32(modelData.settings[index].duration)
+                newSetting.postfix = modelData.settings[index].postfix
             }
         }
     

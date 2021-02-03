@@ -7,6 +7,7 @@
     </entity>
     <entity name="Propertie" representedClassName="Propertie" syncable="YES" codeGenerationType="class">
         <attribute name="duration" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="id" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="postfix" optional="YES" attributeType="String"/>
     </entity>
@@ -20,8 +21,8 @@
         <relationship name="completedPomodoros" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CompletedPomodoros" inverseName="ofTask" inverseEntity="CompletedPomodoros"/>
     </entity>
     <elements>
-        <element name="Propertie" positionX="-243.5748901367188" positionY="210.4519653320312" width="128" height="74"/>
+        <element name="CompletedPomodoros" positionX="-248.7232666015625" positionY="31.88729858398438" width="128" height="74"/>
+        <element name="Propertie" positionX="-243.5748901367188" positionY="210.4519653320312" width="128" height="89"/>
         <element name="Task" positionX="-663.0214233398438" positionY="-28.34587097167969" width="232.2925415039062" height="148"/>
-        <element name="CompletedPomodoros" positionX="-248.7232666015625" positionY="31.88729858398438" width="128" height="88"/>
     </elements>
 </model>
