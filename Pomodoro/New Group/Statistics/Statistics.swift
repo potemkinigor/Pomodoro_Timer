@@ -43,13 +43,7 @@ struct Statistics: View {
                         }
                 }
                 .padding()
-                
-                Picker(selection: $pickerSelectedItem, label: Text("")) {
-                    Text("Столбиковая").tag(0)
-                    Text("Круговая").tag(1)
-                }.pickerStyle(SegmentedPickerStyle())
-                .padding(.horizontal, 24)
-                
+        
                 ScrollView(.horizontal) {
                     HStack(alignment: .bottom) {   
                         ForEach(barChartData.barCharts, id:\.self) {element in
@@ -59,7 +53,6 @@ struct Statistics: View {
                     .padding()
                 }.onAppear {
                     barChartData.updateData(startDate: startDate, endDate: endDate)
-                    
                 }
             }
         }
