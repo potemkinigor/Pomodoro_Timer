@@ -18,6 +18,7 @@ struct ToDoView: View {
     @EnvironmentObject var timerManager: TimerManager
     
     @State private var showAddTask: Bool = false
+    @State private var showInfo: Bool = false
     @State private var editMode = EditMode.inactive
     @State private var presentWorkingTimerAlert = false
     
@@ -32,6 +33,15 @@ struct ToDoView: View {
         }
     }
     
+    private var infoButton: some View {
+        switch editMode {
+        case .inactive:
+            return AnyView(Button(action: onInfo) { Image(systemName: "info.circle") })
+        default:
+            return AnyView(EmptyView())
+        }
+    }
+    
     var body: some View {
         VStack {
             NavigationView {
@@ -41,8 +51,7 @@ struct ToDoView: View {
                             HStack {
                                 if task.name != "Прочее" {
                                     Button(action: {
-                                        let currentDate = Date()
-                                        task.dateFinished = currentDate
+                                        task.dateFinished = Date()
                                         task.isFinished = true
                                         saveCoreData()
                                     }) {
@@ -80,9 +89,9 @@ struct ToDoView: View {
                     .listRowBackground(Color(backgroundColor))
                 }
                 .navigationBarTitle("Задачи")
-                .navigationBarItems(trailing: addButton)
+                .navigationBarItems(leading: infoButton, trailing: addButton)
                 .overlay(showAddTask ?
-                            AddNewTaskView(isPresented: $showAddTask).padding(.all)
+                            AddNewTaskView(isPresented: $showAddTask).padding(.all).animation(.linear)
                             : nil, alignment: .bottom)
                 .onAppear {
                     UITableView.appearance().backgroundColor = backgroundColor
@@ -95,22 +104,21 @@ struct ToDoView: View {
                       dismissButton: .cancel(Text("Ок"))
                 )
             }
+            .sheet(isPresented: $showInfo, content: {
+                InfoView(isPresented: $showInfo)
+            })
     }
     
     //MARK: - Functions
     
     func deleteTask (at offsets: IndexSet) {
         withAnimation {
-            
             offsets.forEach { index in
                 let task = self.tasks[index]
                 if task.currentlyWorking {
                     makeOtherTaskWorking()
                 }
             }
-            
-            
-            
             offsets.map { tasks[$0] }.forEach(viewContext.delete)
             saveCoreData()
         }
@@ -118,6 +126,10 @@ struct ToDoView: View {
     
     func onAdd() {
         showAddTask.toggle()
+    }
+    
+    func onInfo() {
+        showInfo.toggle()
     }
     
     func addTaskToCoreData (taskName: String) {

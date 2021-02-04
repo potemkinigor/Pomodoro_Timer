@@ -40,6 +40,7 @@ class BarChartData: ObservableObject {
         
         barChartDataArray.removeAll()
         barCharts.removeAll()
+        unsortedDates.removeAll()
         
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "dd.MM.yy"
@@ -72,11 +73,11 @@ class BarChartData: ObservableObject {
             counts[item] = (counts[item] ?? 0) + 1
         }
         
-        let tranalsteToCGFloatIndex = updateBarScaleToMaxPomodors(maxPomodors: findMaxPomodors(list: counts))
+        let translateToCGFloatIndex = updateBarScaleToMaxPomodors(maxPomodors: findMaxPomodors(list: counts))
         
         for index in 0..<barChartDataArray.count {
             if counts[barChartDataArray[index].0] != nil {
-                barChartDataArray[index].1 = CGFloat(Double(counts[barChartDataArray[index].0]!) * tranalsteToCGFloatIndex)
+                barChartDataArray[index].1 = CGFloat(Double(counts[barChartDataArray[index].0]!) * translateToCGFloatIndex)
                 barChartDataArray[index].2 = counts[barChartDataArray[index].0]!
             }
         }
