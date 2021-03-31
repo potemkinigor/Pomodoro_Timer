@@ -42,7 +42,6 @@ class TimerManager: ObservableObject {
     @Published var timerColor = Color.red
     @Published var rateTaskCompleted: CGFloat = 1
     
-    
     @Published var dateLeavedApp: Date = Date()
     @Published var dateEnteredApp: Date = Date()
     
@@ -54,7 +53,7 @@ class TimerManager: ObservableObject {
     func startTimer () {
         timerMode = .running
         
-        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true, block: { [self]timer in
+        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true, block: { [self] timer in
             if self.totalSecondsLeft == 0 {
                 if timerTask == .task && getNumberOfAllCompletedTodayTasks () % getTargetNumberOfPomodorsForLongBrake () == 0 && getNumberOfAllCompletedTodayTasks () != 0  {
                     addPomodorToTask()
@@ -82,6 +81,7 @@ class TimerManager: ObservableObject {
     func pauseTimer () {
         self.timerMode = .paused
         timer.invalidate()
+        invalidatePushNotification()
     }
     
     func dropTimerToTask () {
@@ -98,6 +98,7 @@ class TimerManager: ObservableObject {
         timeStamp = convertToTimeStamp(totalSecondsLeft: totalSecondsLeft)
         updateTimerView()
         timer.invalidate()
+        invalidatePushNotification()
     }
     
     func dropTimerToLongBreak () {
@@ -106,6 +107,7 @@ class TimerManager: ObservableObject {
         timeStamp = convertToTimeStamp(totalSecondsLeft: totalSecondsLeft)
         updateTimerView()
         timer.invalidate()
+        invalidatePushNotification()
     }
     
     func missTask () {
@@ -114,31 +116,7 @@ class TimerManager: ObservableObject {
         timerMode = .initial
         timerTask = .task
         updateTimerView()
-    }
-    
-    //MARK: - Private functions
-    
-    func addPomodorToTask () {
-        
-        let viewContext = PersistenceContainer.shared.container.viewContext
-        
-        let request = Task.fetchRequest() as NSFetchRequest<Task>
-        let pred = NSPredicate(format: "currentlyWorking == true")
-        request.predicate = pred
-        
-        let workingTask = try! viewContext.fetch(request)
-        
-        
-        let newEntry = CompletedPomodoros(context: viewContext)
-        newEntry.date = Date()
-        newEntry.totalAmount = 1
-        workingTask[0].completedPomodoros = NSSet.init(array: [newEntry])
-        
-        workingTask[0].countPomidorsActual += 1
-        
-        saveCoreData()
-        
-        numberOfActualPomodors = getNumberOfAllCompletedTodayTasks ()
+        invalidatePushNotification()
     }
     
     func convertToTimeStamp (totalSecondsLeft: Int) -> String {
@@ -175,7 +153,32 @@ class TimerManager: ObservableObject {
         return Int(settingWithTotalTime[0].duration) * 60
     }
     
-    func updateTimerView() {
+    //MARK: - Private functions
+    
+    private func addPomodorToTask () {
+        
+        let viewContext = PersistenceContainer.shared.container.viewContext
+        
+        let request = Task.fetchRequest() as NSFetchRequest<Task>
+        let pred = NSPredicate(format: "currentlyWorking == true")
+        request.predicate = pred
+        
+        let workingTask = try! viewContext.fetch(request)
+        
+        
+        let newEntry = CompletedPomodoros(context: viewContext)
+        newEntry.date = Date()
+        newEntry.totalAmount = 1
+        workingTask[0].completedPomodoros = NSSet.init(array: [newEntry])
+        
+        workingTask[0].countPomidorsActual += 1
+        
+        saveCoreData()
+        
+        numberOfActualPomodors = getNumberOfAllCompletedTodayTasks ()
+    }
+    
+    private func updateTimerView() {
         switch timerTask {
         case .task:
             timerColor = Color.red
@@ -187,6 +190,10 @@ class TimerManager: ObservableObject {
             timerColor = Color.green
             rateTaskCompleted = CGFloat(Double(totalSecondsLeft) / Double(updateTimerSecondsLeft(mode: .shortBrake)))
         }
+    }
+    
+    private func invalidatePushNotification () {
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ["Timer identifyer"])
     }
     
 }

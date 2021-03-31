@@ -53,15 +53,45 @@ struct ContentView: View {
             .ignoresSafeArea(edges: .top)
         }.onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
             timerManager.dateLeavedApp = Date()
+            
+            if timerManager.timerMode == .running {
+                let usernotifictaion = UNUserNotificationCenter.current()
+                let notification = UNMutableNotificationContent()
+                var timerBodyText = ""
+                
+                if timerManager.timerTask == .task {
+                    timerBodyText = "Время задачи закончилось"
+                } else {
+                    timerBodyText = "Время отдыха закончилось"
+                }
+                
+                notification.title = "Таймер завершен"
+                notification.body = timerBodyText
+                notification.badge = 1
+                notification.sound = UNNotificationSound.default
+                
+                let timeToNotify = Date(timeIntervalSinceNow: TimeInterval(timerManager.totalSecondsLeft))
+                let triggerDate = Calendar.current.dateComponents([.year, .month,.day, .hour, .minute, .second], from: timeToNotify)
+                let trigger = UNCalendarNotificationTrigger(dateMatching: triggerDate, repeats: false)
+                
+                let identifyer = "Timer identifyer"
+                let request = UNNotificationRequest(identifier: identifyer, content: notification, trigger: trigger)
+                
+                usernotifictaion.add(request) { (error) in
+                    if let error = error {
+                            print("Error \(error.localizedDescription)")
+                    }
+                }
+            }
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
             timerManager.dateEnteredApp = Date()
             
             let differenceInSeconds = Int(timerManager.dateEnteredApp.timeIntervalSince(timerManager.dateLeavedApp))
             
-            if differenceInSeconds > timerManager.totalSecondsLeft {
+            if (differenceInSeconds > timerManager.totalSecondsLeft) && (timerManager.timerMode == .running) {
                 timerManager.totalSecondsLeft = 1
-            } else {
+            } else if timerManager.timerMode == .running {
                 timerManager.totalSecondsLeft -= differenceInSeconds
             }
         }

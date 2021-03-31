@@ -7,6 +7,7 @@
 
 import SwiftUI
 import CoreData
+import UserNotifications
 
 @main
 struct PomodoroApp: App {
@@ -18,7 +19,6 @@ struct PomodoroApp: App {
     let persistanceContainer = PersistenceContainer.shared
     
     var body: some Scene {
-
         WindowGroup {
             
             ContentView().onAppear(perform: checkData)
@@ -30,11 +30,28 @@ struct PomodoroApp: App {
     }
     
     func checkData () {
+        requestUserNotificationsRequest()
         checkCoreData()
         checkWorkingTask()
         updateTimerStatus()
         updatePropertiesStatus()
         barChartData.updateData(startDate: Calendar.current.date(byAdding: .day, value: -7, to: Date())!, endDate: Date())
+    }
+    
+    func requestUserNotificationsRequest () {
+        let usernotifictaion = UNUserNotificationCenter.current()
+        
+        let options: UNAuthorizationOptions = [.alert, .sound, .badge]
+        
+        usernotifictaion.requestAuthorization(options: options) { (didAllow, error) in
+            if error == nil {
+                print("Finished with error: \(String(describing: error?.localizedDescription))")
+            } else {
+                if !didAllow {
+                    print("Decliened by user")
+                }
+            }
+        }
     }
     
     func checkWorkingTask () {
